@@ -13,3 +13,4 @@ There are settings you can play in the javascript file; these are; MAX_DELAY and
 
 EXTRA:<br>
 You can modify the server to use stockfish more efficiently and powerfully by reading this link https://pypi.org/project/stockfish/
+I recommend you to install the latest version of stockfish and use it instead of stockfish 10 in the repo now. Github wouldn't let me upload it -> https://stockfishchess.org/download/
