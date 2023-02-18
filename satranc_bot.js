@@ -22,11 +22,11 @@ if (data == "not_play"){
 }
 
 const MAX_DELAY = 0 // buna 0 derseniz bütün hamleler anında yapılır
-const STOCK_DEPTH = 20
+const STOCK_DEPTH = 10
 
 let color = data.player.color
 let ply = data.game.turns
-let uci = ""
+
 localStorage.pos = ""
 for (let i=1; i != data.steps.length; i++){
 	//data dan dönen değerde rok varsa stockfish in istediği versiyona dönüştürüyoruz bunu yapmanın socket yapısındaki kadar kolay olmamasının sebebi data nın socket ten dönen data ile aynı rok bilgisine sahip olmaması
@@ -38,12 +38,26 @@ for (let i=1; i != data.steps.length; i++){
 	else
 		localStorage.pos += " "+data.steps[i].uci
 }
+
 if (!localStorage.hasOwnProperty("MODE"))
 	localStorage.MODE = "AUTO"// AUTO, MANUEL | default MODE -> AUTO
-let urls = {
+
+	let urls = {
 	"top5":"http://localhost:44/get_top5_move",
 	"best_one":"http://localhost:44/get_best_move"
 }
+
+let player_name
+if (data.player.hasOwnProperty("user"))
+	player_name = data.player.user.username
+else
+	player_name = "Magic Guy"
+
+let enemy_name
+if (data.opponent.hasOwnProperty("user"))
+	enemy_name = data.opponent.user.username
+else
+	enemy_name = "lvl "+data.opponent.ai+" ai"
 
 function who_turn(ply){
 	let turn
@@ -81,9 +95,18 @@ function get_move(arg){
 	});
 }
 
+
+lichess.socket.ws.addEventListener("open", (e)=>{
+	//AUTO modda sayfa yüklendiğinde sıra bizdeyse otomatik hamle yapıyoruz burası sayesinde
+	if (color == who_turn(ply) && localStorage.MODE == "AUTO"){
+		get_move("best_one").then(go_move).catch((error)=>{
+			console.log("cant get move from server error->", error)
+		})
+	}
+})
 lichess.socket.ws.addEventListener("message", (e) => {
 	let dat = JSON.parse(e.data)
-
+	let uci = ""
 	if (dat.hasOwnProperty("d") && dat.d.hasOwnProperty("ply"))
 		ply = dat.d.ply
 
@@ -93,11 +116,6 @@ lichess.socket.ws.addEventListener("message", (e) => {
 			//oyunun başladığı ifade eder
 		}
 
-		if (localStorage.MODE == "AUTO" ){
-			get_move("best_one").then(go_move).catch((error)=>{
-				console.log("server ile iletişim kurulamadı: ", error)
-			})
-		}
 	}
 	else if (dat.t == "move"){
 
@@ -113,14 +131,14 @@ lichess.socket.ws.addEventListener("message", (e) => {
 		localStorage.pos += " "+uci //oyunun başından itibaren oynana bütün hamleleri localstorage de tutuyoruz, her oyun başladığında sıfırlamamız gerekiyor şimdilik böyle bir çözüm buldum hamleleri kaydetmek için
 
 		if (color == who_turn(ply)){
-			console.log("enemy -> "+uci)
+			console.log(enemy_name+" -> "+uci)
 			if (localStorage.MODE == "AUTO"){
 				get_move("best_one").then(go_move).catch((error)=>{
 					console.log("cant get move from server error->", error)
 				})
 			}
 		} else{
-			console.log("your friend -> "+uci)
+			console.log(player_name+" -> "+uci)
 		}
 	}
 	else if (dat.d == "endData"){
@@ -149,7 +167,7 @@ document.addEventListener('keydown', (event) => {
 		else if (keysPressed["a"]){
 			localStorage.MODE = "AUTO"
 			console.log("Switched to AUTO mode")
-			if (color == who_turn(ply)){
+			if (color == who_turn(ply) && localStorage.MODE != "AUTO"){
 				get_move("best_one").then(go_move).catch((error)=>{
 					console.log("cant get move from server error->", error)
 				})
