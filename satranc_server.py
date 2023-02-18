@@ -1,9 +1,9 @@
 from stockfish import Stockfish
 from flask import Flask, request, json, send_file
-import random
+import random, os
 #stockfish = Stockfish("C:\\Users\\safak\\Masaüstü\\stockfish_15_win_x64_avx2\\stockfish_15_win_x64_avx2\\stockfish_15_x64_avx2.exe",depth=20,parameters={"Threads": 5, "Minimum Thinking Time": 20, "Hash":2048, "Ponder":"true"})
 
-stockfish = Stockfish("C:\\Users\\Sems1\\Desktop\\satranc\\satranc\\stockfish_10_x64.exe")
+stockfish = Stockfish(os.path.abspath("stockfish_10_x64.exe"))
 api = Flask(__name__)
 
 @api.route('/get_best_move', methods=['POST'])
