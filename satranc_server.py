@@ -24,6 +24,6 @@ def get_top5_move():
 
 @api.route("/", methods=["GET"])
 def hello():
-    return send_file("index.html")
+    return "Lichess Bot Server is listening, enjoy! -Sems"
 if __name__ == '__main__':
     api.run(host="localhost", port=44, debug=True)
