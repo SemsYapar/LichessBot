@@ -10,7 +10,7 @@ let data = "not_play"
 let scripts = document.getElementsByTagName("script")
 let raw_data = scripts[3].innerText.substring(53,scripts[3].innerText.trim().length-4)
 data = JSON.parse(raw_data).data
-if (data == "not_play"){
+if (data.hasOwnProperty("counters")){
 	console.log("Welcome! Enter a game to control the bot\n\nGuide:\n  Alt+a -> AUTO mode\n  Alt+m -> MANUEL mode\n  Alt+s -> steps in manual mode\n  Alt+x -> analysis the game (i guess it will be used more in manual mode)\n\n\n-Carefully coded by Sems")
 	return
 }
